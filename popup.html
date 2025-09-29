@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Element Embeddings</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔍 Element Embeddings</h1>
+      <p class="subtitle">AI-powered embeddings for every HTML element</p>
+    </div>
+
+    <div class="content">
+      <div class="section">
+        <h2>Configuration</h2>
+        
+        <div class="form-group">
+          <label for="apiKey">Gemini API Key:</label>
+          <input type="password" id="apiKey" placeholder="Enter your Gemini API key">
+          <button id="toggleKey" type="button" title="Show/Hide API Key">👁️</button>
+        </div>
+        
+        <div class="buttons">
+          <button id="saveKey" class="primary">Save Key</button>
+          <button id="testKey" class="secondary">Test Key</button>
+        </div>
+        
+        <div id="status" class="status"></div>
+      </div>
+
+      <div class="section">
+        <h2>Usage</h2>
+        <div class="info">
+          <p>Once configured, this extension adds an <code>.embedding</code> property to every HTML element on web pages.</p>
+          
+          <h3>Example Usage:</h3>
+          <pre><code>// Get embedding for any element
+const element = document.querySelector('p');
+const embedding = await element.embedding;
+console.log(embedding);
+
+// Example output:
+// {
+//   vector: [0.1, -0.2, 0.3, ...], // 768-dimensional vector
+//   content: "Element text content",
+//   type: "text",
+//   timestamp: 1640995200000,
+//   model: "text-embedding-004"
+// }</code></pre>
+
+          <h3>Supported Element Types:</h3>
+          <ul>
+            <li><strong>Text elements:</strong> Uses innerText for embedding</li>
+            <li><strong>Images:</strong> Uses alt text and src for description</li>
+            <li><strong>Videos:</strong> Uses title and src for description</li>
+            <li><strong>Audio:</strong> Uses title and src for description</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Demo</h2>
+        <button id="demo" class="secondary">Try on Current Page</button>
+        <div id="demoResults" class="demo-results"></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="https://ai.google.dev/gemini-api" target="_blank">Get Gemini API Key</a>
+        | <a href="https://github.com/PaulKinlan/Embeddings-" target="_blank">GitHub</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
