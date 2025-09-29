@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Element Embeddings Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-results {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        button {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        img {
+            max-width: 200px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Element Embeddings Extension Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Text Elements</h2>
+        <p id="test-paragraph">This is a test paragraph with some sample text that should generate an embedding when the extension is active.</p>
+        <h3>Subheading</h3>
+        <div>This is a div with text content.</div>
+        <button onclick="testTextElements()">Test Text Elements</button>
+        <div id="text-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Image Elements</h2>
+        <img id="test-image" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='100'><rect width='200' height='100' fill='%234facfe'/><text x='100' y='55' text-anchor='middle' fill='white' font-family='Arial' font-size='16'>Test Image</text></svg>" alt="A test image for embedding">
+        <button onclick="testImageElements()">Test Image Elements</button>
+        <div id="image-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Link Elements</h2>
+        <a id="test-link" href="https://example.com">This is a test link</a>
+        <button onclick="testLinkElements()">Test Link Elements</button>
+        <div id="link-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Dynamic Content Test</h2>
+        <div id="dynamic-container"></div>
+        <button onclick="addDynamicContent()">Add Dynamic Content</button>
+        <button onclick="testDynamicContent()">Test Dynamic Content</button>
+        <div id="dynamic-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Extension Status</h2>
+        <button onclick="checkExtensionStatus()">Check Extension Status</button>
+        <div id="status-results" class="test-results"></div>
+    </div>
+
+    <script>
+        async function testTextElements() {
+            const results = document.getElementById('text-results');
+            results.textContent = 'Testing text elements...\n';
+            
+            const elements = [
+                document.querySelector('h1'),
+                document.getElementById('test-paragraph'),
+                document.querySelector('h3'),
+                document.querySelector('div')
+            ];
+
+            for (const element of elements) {
+                if (element && element.embedding) {
+                    try {
+                        const embedding = await element.embedding;
+                        results.textContent += `${element.tagName}: ${embedding.vector ? 'SUCCESS' : 'FAILED'}\n`;
+                        results.textContent += `  Content: ${embedding.content?.substring(0, 50)}...\n`;
+                        results.textContent += `  Vector Length: ${embedding.vector?.length || 0}\n`;
+                        results.textContent += `  Type: ${embedding.type}\n\n`;
+                    } catch (error) {
+                        results.textContent += `${element.tagName}: ERROR - ${error.message}\n\n`;
+                    }
+                } else {
+                    results.textContent += `${element?.tagName || 'Element'}: No .embedding property found\n\n`;
+                }
+            }
+        }
+
+        async function testImageElements() {
+            const results = document.getElementById('image-results');
+            results.textContent = 'Testing image elements...\n';
+            
+            const image = document.getElementById('test-image');
+            if (image && image.embedding) {
+                try {
+                    const embedding = await image.embedding;
+                    results.textContent += `IMG: ${embedding.vector ? 'SUCCESS' : 'FAILED'}\n`;
+                    results.textContent += `  Content: ${embedding.content}\n`;
+                    results.textContent += `  Vector Length: ${embedding.vector?.length || 0}\n`;
+                    results.textContent += `  Type: ${embedding.type}\n`;
+                } catch (error) {
+                    results.textContent += `IMG: ERROR - ${error.message}\n`;
+                }
+            } else {
+                results.textContent += 'IMG: No .embedding property found\n';
+            }
+        }
+
+        async function testLinkElements() {
+            const results = document.getElementById('link-results');
+            results.textContent = 'Testing link elements...\n';
+            
+            const link = document.getElementById('test-link');
+            if (link && link.embedding) {
+                try {
+                    const embedding = await link.embedding;
+                    results.textContent += `A: ${embedding.vector ? 'SUCCESS' : 'FAILED'}\n`;
+                    results.textContent += `  Content: ${embedding.content}\n`;
+                    results.textContent += `  Vector Length: ${embedding.vector?.length || 0}\n`;
+                    results.textContent += `  Type: ${embedding.type}\n`;
+                } catch (error) {
+                    results.textContent += `A: ERROR - ${error.message}\n`;
+                }
+            } else {
+                results.textContent += 'A: No .embedding property found\n';
+            }
+        }
+
+        function addDynamicContent() {
+            const container = document.getElementById('dynamic-container');
+            const newElement = document.createElement('p');
+            newElement.id = 'dynamic-paragraph';
+            newElement.textContent = 'This paragraph was added dynamically and should also get an embedding property.';
+            container.appendChild(newElement);
+        }
+
+        async function testDynamicContent() {
+            const results = document.getElementById('dynamic-results');
+            results.textContent = 'Testing dynamic content...\n';
+            
+            const dynamicElement = document.getElementById('dynamic-paragraph');
+            if (!dynamicElement) {
+                results.textContent += 'No dynamic content found. Click "Add Dynamic Content" first.\n';
+                return;
+            }
+            
+            // Wait a bit for the extension to process the new element
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            if (dynamicElement.embedding) {
+                try {
+                    const embedding = await dynamicElement.embedding;
+                    results.textContent += `Dynamic P: ${embedding.vector ? 'SUCCESS' : 'FAILED'}\n`;
+                    results.textContent += `  Content: ${embedding.content}\n`;
+                    results.textContent += `  Vector Length: ${embedding.vector?.length || 0}\n`;
+                    results.textContent += `  Type: ${embedding.type}\n`;
+                } catch (error) {
+                    results.textContent += `Dynamic P: ERROR - ${error.message}\n`;
+                }
+            } else {
+                results.textContent += 'Dynamic P: No .embedding property found\n';
+            }
+        }
+
+        function checkExtensionStatus() {
+            const results = document.getElementById('status-results');
+            results.textContent = 'Checking extension status...\n';
+            
+            // Check if extension is loaded
+            const hasEmbeddingManager = typeof window.embeddingManager !== 'undefined';
+            results.textContent += `Embedding Manager: ${hasEmbeddingManager ? 'LOADED' : 'NOT FOUND'}\n`;
+            
+            // Check if elements have embedding property
+            const testElement = document.querySelector('p');
+            const hasEmbeddingProperty = testElement && typeof testElement.embedding !== 'undefined';
+            results.textContent += `Embedding Property: ${hasEmbeddingProperty ? 'PRESENT' : 'MISSING'}\n`;
+            
+            // Check processed attribute
+            const isProcessed = testElement && testElement.hasAttribute('data-embedding-processed');
+            results.textContent += `Element Processed: ${isProcessed ? 'YES' : 'NO'}\n`;
+            
+            if (hasEmbeddingManager) {
+                results.textContent += `\nCache Size: ${window.embeddingManager.cache.size}\n`;
+                results.textContent += `Processing Queue: ${window.embeddingManager.processing.size}\n`;
+            }
+        }
+
+        // Auto-check status on page load
+        window.addEventListener('load', () => {
+            setTimeout(checkExtensionStatus, 2000);
+        });
+    </script>
+</body>
+</html>
